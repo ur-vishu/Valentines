@@ -17,28 +17,27 @@
 
       body {
         margin: 0;
-        min-height: 100vh;
+        min-height: 100svh;
         display: flex;
         align-items: center;
         justify-content: center;
-        padding: 24px;
+        padding: clamp(12px, 3vw, 28px);
         background: radial-gradient(circle at top, #ffe3ec, #ffd1dc 45%, #feb7c5 75%, #f79aa7);
         overflow: hidden;
       }
 
       .card {
         position: relative;
-        width: min(94vw, 900px);
-        min-height: min(86vh, 720px);
-        padding: clamp(2rem, 4vw, 3.5rem) clamp(1.5rem, 4vw, 3rem) clamp(2rem, 4vw, 3rem);
-        background: rgba(255, 255, 255, 0.92);
+        width: min(94vw, 760px);
+        padding: clamp(1.6rem, 4vw, 2.8rem) clamp(1.2rem, 4vw, 2.6rem);
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(255, 255, 255, 0.9));
         border-radius: 32px;
         box-shadow: 0 30px 80px rgba(255, 105, 135, 0.35);
         text-align: center;
         overflow: hidden;
         display: flex;
         flex-direction: column;
-        gap: 1rem;
+        gap: clamp(0.5rem, 1.6vw, 1rem);
       }
 
       h1 {
@@ -56,6 +55,34 @@
         margin: 0 0 1rem;
         font-size: clamp(1rem, 2vw, 1.2rem);
         color: #a13b59;
+      }
+
+      .badges {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.5rem;
+        margin: 0 0 0.8rem;
+      }
+
+      .badge {
+        padding: 0.3rem 0.75rem;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.9);
+        box-shadow: 0 8px 18px rgba(255, 105, 135, 0.18);
+        font-size: 0.85rem;
+        color: #b34b68;
+      }
+
+      .name-cycle {
+        display: inline-block;
+        color: #ff4d79;
+        transition: transform 220ms ease, opacity 220ms ease;
+      }
+
+      .name-cycle.fade {
+        opacity: 0.2;
+        transform: translateY(-6px);
       }
 
       .hearts {
@@ -86,10 +113,11 @@
         gap: 1rem;
         justify-content: center;
         align-items: center;
-        min-height: clamp(220px, 45vh, 420px);
+        min-height: clamp(320px, 55vh, 520px);
         padding: 0.5rem;
         flex: 1;
         touch-action: manipulation;
+        background: radial-gradient(circle at 50% 40%, rgba(255, 105, 135, 0.12), transparent 58%);
       }
 
       button {
@@ -105,14 +133,16 @@
       }
 
       #yesBtn {
+        --yes-scale: 1;
         background: linear-gradient(135deg, #ff85a2, #ff3366);
         color: #fff5f9;
         box-shadow: 0 10px 25px rgba(255, 51, 102, 0.4);
+        transform: scale(var(--yes-scale));
         animation: pulse 2.4s ease-in-out infinite;
       }
 
       #yesBtn:hover {
-        transform: translateY(-2px) scale(1.03);
+        transform: translateY(-2px) scale(calc(var(--yes-scale) * 1.03));
       }
 
       #noBtn {
@@ -124,7 +154,7 @@
         left: 0;
         top: 0;
         transform: translate3d(0, 0, 0);
-        transition: transform 220ms ease, box-shadow 150ms ease, background 150ms ease;
+        transition: box-shadow 160ms ease, background 160ms ease, border-color 160ms ease;
         will-change: transform;
       }
 
@@ -135,7 +165,7 @@
       }
 
       .yes-gif {
-        width: min(70%, 320px);
+        width: min(70%, 300px);
         max-height: 220px;
         object-fit: contain;
         border-radius: 16px;
@@ -176,10 +206,10 @@
       @keyframes pulse {
         0%,
         100% {
-          transform: scale(1);
+          transform: scale(calc(var(--yes-scale) * 1));
         }
         50% {
-          transform: scale(1.06);
+          transform: scale(calc(var(--yes-scale) * 1.06));
         }
       }
 
@@ -203,12 +233,12 @@
         }
 
         .card {
-          min-height: min(90vh, 680px);
-          padding: 1.75rem 1.25rem 2rem;
+          border-radius: 24px;
+          padding: 1.5rem 1.1rem 1.8rem;
         }
 
         .choices {
-          min-height: clamp(220px, 55vh, 420px);
+          min-height: clamp(200px, 42vh, 320px);
         }
       }
 
@@ -230,8 +260,14 @@
   <body>
     <div class="card">
       <div class="hearts" aria-hidden="true"></div>
-      <h1>Will you be my Valentine? 💖</h1>
+      <h1>Will you be my Valentine <span class="name-cycle" id="nameCycle">my lil panda 🐼</span>? 💖</h1>
       <p class="subtitle">You + me + snacks = perfect date 🍫🎬</p>
+      <div class="badges" aria-hidden="true">
+        <span class="badge">cute vibes ✨</span>
+        <span class="badge">hug me 🤗</span>
+        <span class="badge">date night 🍓</span>
+        <span class="badge">extra kisses 😘</span>
+      </div>
       <p>I promise endless chocolate, cheesy rom-coms, and bad dance moves. 🕺💃</p>
       <div class="choices">
         <button id="yesBtn">Yes!</button>
@@ -248,13 +284,63 @@
       const message = document.getElementById("message");
       const playArea = document.querySelector(".choices");
       const yesGif = document.getElementById("yesGif");
+      const nameCycle = document.getElementById("nameCycle");
 
-      let yesScale = 1;
       let noPos = { x: 0, y: 0 };
-      let lastDodge = 0;
-      let rafPending = false;
-      let lastPointer = { x: 0, y: 0 };
+      let noVel = { x: 0, y: 0 };
+      let chaseBoost = 0;
+      let yesBoost = 0;
+      const pointer = { x: 0, y: 0, active: false };
+      let bounds = {
+        left: 0,
+        top: 0,
+        width: 0,
+        height: 0,
+        btnW: 0,
+        btnH: 0,
+        pad: 16,
+        maxX: 0,
+        maxY: 0,
+      };
       const confettiEmojis = ["💖", "💘", "💝", "✨", "🌸", "😍", "🥰"];
+      const namePhrases = ["my lil panda 🐼", "my sweetie pie 😛", "my love ❤️", "my bulbul 🕊️", "my Anji ❤️"];
+      let nameIndex = 0;
+
+      function cycleName() {
+        nameCycle.classList.add("fade");
+        setTimeout(() => {
+          nameIndex = (nameIndex + 1) % namePhrases.length;
+          nameCycle.textContent = namePhrases[nameIndex];
+          nameCycle.classList.remove("fade");
+        }, 180);
+      }
+
+      function clamp(value, min, max) {
+        return Math.min(max, Math.max(min, value));
+      }
+
+      function measureBounds() {
+        const rect = playArea.getBoundingClientRect();
+        const btnW = noBtn.offsetWidth;
+        const btnH = noBtn.offsetHeight;
+        const pad = 10;
+
+        bounds = {
+          left: rect.left,
+          top: rect.top,
+          width: rect.width,
+          height: rect.height,
+          btnW,
+          btnH,
+          pad,
+          maxX: Math.max(rect.width - btnW - pad * 2, 0),
+          maxY: Math.max(rect.height - btnH - pad * 2, 0),
+        };
+
+        noPos.x = clamp(noPos.x, pad, pad + bounds.maxX);
+        noPos.y = clamp(noPos.y, pad, pad + bounds.maxY);
+        setNoPosition(noPos.x, noPos.y);
+      }
 
       function setNoPosition(x, y) {
         noPos = { x, y };
@@ -262,55 +348,124 @@
       }
 
       function randomPositionWithinPlayArea() {
-        const areaWidth = playArea.clientWidth;
-        const areaHeight = playArea.clientHeight;
-        const btnWidth = noBtn.offsetWidth;
-        const btnHeight = noBtn.offsetHeight;
-        const safePadding = 10;
-
-        const availableX = Math.max(areaWidth - btnWidth - safePadding * 2, 0);
-        const availableY = Math.max(areaHeight - btnHeight - safePadding * 2, 0);
-
-        const x = safePadding + Math.random() * availableX;
-        const y = safePadding + Math.random() * availableY;
-
+        if (!bounds.width) {
+          measureBounds();
+        }
+        const x = bounds.pad + Math.random() * bounds.maxX;
+        const y = bounds.pad + Math.random() * bounds.maxY;
         setNoPosition(x, y);
       }
 
-      function maybeDodge(pointerX, pointerY) {
-        const now = performance.now();
-        if (now - lastDodge < 140) {
+      function kickAway(strength = 9) {
+        if (!pointer.active || !bounds.width) {
           return;
         }
-
-        const areaRect = playArea.getBoundingClientRect();
-        const btnWidth = noBtn.offsetWidth;
-        const btnHeight = noBtn.offsetHeight;
-        const centerX = areaRect.left + noPos.x + btnWidth / 2;
-        const centerY = areaRect.top + noPos.y + btnHeight / 2;
-
-        const dx = pointerX - centerX;
-        const dy = pointerY - centerY;
-        const distance = Math.hypot(dx, dy);
-        const dodgeRadius = Math.min(160, Math.max(80, Math.min(areaRect.width, areaRect.height) * 0.3));
-
-        if (distance < dodgeRadius) {
-          lastDodge = now;
-          randomPositionWithinPlayArea();
-          enlargeYes();
-        }
+        const centerX = bounds.left + noPos.x + bounds.btnW / 2;
+        const centerY = bounds.top + noPos.y + bounds.btnH / 2;
+        const dx = centerX - pointer.x;
+        const dy = centerY - pointer.y;
+        const dist = Math.hypot(dx, dy) || 0.001;
+        const jitter = () => (Math.random() - 0.5) * 2;
+        noVel.x += (dx / dist) * strength + jitter();
+        noVel.y += (dy / dist) * strength + jitter();
       }
 
-      function enlargeYes() {
-        yesScale = Math.min(yesScale + 0.08, 1.6);
-        yesBtn.style.transform = `scale(${yesScale})`;
+      let lastTime = performance.now();
+      function animate(time) {
+        const dt = Math.min((time - lastTime) / 16.67, 2);
+        lastTime = time;
+
+        if (!bounds.width) {
+          measureBounds();
+        }
+
+        const centerX = bounds.left + noPos.x + bounds.btnW / 2;
+        const centerY = bounds.top + noPos.y + bounds.btnH / 2;
+        const influence = Math.min(260, Math.max(140, Math.min(bounds.width, bounds.height) * 0.7));
+        let proximity = 0;
+        const panicDistance = 32;
+
+        if (pointer.active) {
+          const dx = centerX - pointer.x;
+          const dy = centerY - pointer.y;
+          const dist = Math.hypot(dx, dy) || 0.001;
+          proximity = clamp(1 - dist / influence, 0, 1);
+
+          if (proximity > 0) {
+            const force = proximity * proximity * 7;
+            noVel.x += (dx / dist) * force * dt;
+            noVel.y += (dy / dist) * force * dt;
+          }
+
+          if (dist < panicDistance) {
+            randomPositionWithinPlayArea();
+            noVel.x *= 0.3;
+            noVel.y *= 0.3;
+          }
+        }
+
+        const drift = 0.55;
+        noVel.x += Math.sin(time / 500) * drift * dt;
+        noVel.y += Math.cos(time / 620) * drift * dt;
+
+        const damping = Math.pow(0.84, dt);
+        noVel.x *= damping;
+        noVel.y *= damping;
+
+        const speed = Math.hypot(noVel.x, noVel.y);
+        const maxSpeed = pointer.active ? 18 : 8;
+        if (speed > maxSpeed) {
+          noVel.x = (noVel.x / speed) * maxSpeed;
+          noVel.y = (noVel.y / speed) * maxSpeed;
+        }
+
+        noPos.x += noVel.x * dt;
+        noPos.y += noVel.y * dt;
+
+        const minX = bounds.pad;
+        const minY = bounds.pad;
+        const maxX = bounds.pad + bounds.maxX;
+        const maxY = bounds.pad + bounds.maxY;
+
+        if (noPos.x < minX) {
+          noPos.x = minX;
+          noVel.x *= -0.45;
+        } else if (noPos.x > maxX) {
+          noPos.x = maxX;
+          noVel.x *= -0.45;
+        }
+
+        if (noPos.y < minY) {
+          noPos.y = minY;
+          noVel.y *= -0.45;
+        } else if (noPos.y > maxY) {
+          noPos.y = maxY;
+          noVel.y *= -0.45;
+        }
+
+        setNoPosition(noPos.x, noPos.y);
+
+        if (pointer.active && proximity > 0) {
+          chaseBoost = clamp(chaseBoost + proximity * 0.04 * dt, 0, 1);
+          yesBoost = clamp(yesBoost + proximity * 0.012 * dt, 0, 0.55);
+        } else {
+          chaseBoost = Math.max(0, chaseBoost - 0.03 * dt);
+          yesBoost = Math.max(0, yesBoost - 0.008 * dt);
+        }
+
+        const yesScale = 1 + yesBoost + chaseBoost * 0.32;
+        yesBtn.style.setProperty("--yes-scale", yesScale.toFixed(3));
+
+        requestAnimationFrame(animate);
       }
 
       function celebrate() {
         message.classList.add("show");
         yesBtn.textContent = "Yaaay!";
         yesBtn.style.animation = "none";
-        yesBtn.style.transform = "scale(1.08)";
+        yesBoost = Math.max(yesBoost, 0.12);
+        chaseBoost = 0;
+        yesBtn.style.setProperty("--yes-scale", "1.12");
         yesGif.classList.add("show");
         launchConfetti();
       }
@@ -342,26 +497,39 @@
       }
 
       playArea.addEventListener("pointermove", (event) => {
-        lastPointer = { x: event.clientX, y: event.clientY };
-        if (rafPending) {
-          return;
-        }
-        rafPending = true;
-        requestAnimationFrame(() => {
-          rafPending = false;
-          maybeDodge(lastPointer.x, lastPointer.y);
-        });
+        pointer.x = event.clientX;
+        pointer.y = event.clientY;
+        pointer.active = true;
       });
 
       playArea.addEventListener("pointerdown", (event) => {
-        lastPointer = { x: event.clientX, y: event.clientY };
-        maybeDodge(lastPointer.x, lastPointer.y);
+        pointer.x = event.clientX;
+        pointer.y = event.clientY;
+        pointer.active = true;
+        kickAway(10);
+      });
+
+      playArea.addEventListener("pointerleave", () => {
+        pointer.active = false;
+      });
+
+      playArea.addEventListener("pointerup", () => {
+        pointer.active = false;
+      });
+
+      playArea.addEventListener("pointercancel", () => {
+        pointer.active = false;
       });
 
       noBtn.addEventListener("pointerdown", (event) => {
         event.preventDefault();
-        randomPositionWithinPlayArea();
-        enlargeYes();
+        pointer.active = true;
+        yesBoost = clamp(yesBoost + 0.06, 0, 0.55);
+        kickAway(14);
+      });
+
+      noBtn.addEventListener("click", (event) => {
+        event.preventDefault();
       });
 
       yesBtn.addEventListener("click", () => {
@@ -369,10 +537,17 @@
       });
 
       window.addEventListener("resize", () => {
-        randomPositionWithinPlayArea();
+        measureBounds();
       });
 
+      measureBounds();
       randomPositionWithinPlayArea();
+      requestAnimationFrame(animate);
+
+      const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      if (!reduceMotion) {
+        setInterval(cycleName, 2200);
+      }
     </script>
   </body>
 </html>
