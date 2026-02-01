@@ -11,6 +11,10 @@
         background: #fff0f5;
       }
 
+      html {
+        scroll-behavior: smooth;
+      }
+
       * {
         box-sizing: border-box;
       }
@@ -478,6 +482,7 @@
         }
         noBtn.style.display = "none";
         launchConfetti();
+        message.scrollIntoView({ behavior: "smooth", block: "center" });
       }
 
       function launchConfetti() {
